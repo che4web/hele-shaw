@@ -1,0 +1,21 @@
+[package]
+name = "hele-shaw"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+pdifflib={version= '0.1.0',path="../pdifflib"}
+ndarray = "0.15.0"
+ndarray-stats = "0.5.0"
+queues = "1.0.2"
+
+csv = "1.1"
+serde =  { version = "1.0", features = ["derive"] }
+toml = "0.5.2"
+
+[profile.release]
+debug = 1
+[rust]
+debuginfo-level = 1

@@ -1,0 +1,11 @@
+gr=224
+gr_v=40
+pr=10
+time=1000
+omega=2.44
+rel_v= 0.15
+
+[params_c]
+sc=1000
+sor=-0.3
+
