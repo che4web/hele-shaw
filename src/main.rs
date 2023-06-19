@@ -1,8 +1,8 @@
-const NY:usize=33;
+const NY:usize=30;
 const L:f64=2.0;
 const NX:usize=(NY-1)*(L as usize)+1;
-
-const H:f64=L/((NX-1) as f64);
+const HEIGHT:f64 =20.0; 
+const H:f64=HEIGHT*L/((NX-1) as f64);
 const PEREODIC:bool = true;
 
 use ndarray_stats::QuantileExt;
@@ -89,21 +89,21 @@ impl System for S{
         return self.params.time;
     }
     fn get_DT(&self)->f64{
-        return H*H/5.0/10.;
+        return H*H/5.0/60.;
     }
     fn initial_condition(&mut self){
-        let gama:f64= self.params.params_c.sor;
+        let gama:f64= -(self.params.params_c.sor*self.params.rel*self.params.params_c.bm-1.0)/self.params.params_c.l_sed;
  
       for i in 0..NX{
         for j in 0..NY{
 
-            self.temp.f[[i,j]] = 1.0-(j as f64)*H;
+            self.temp.f[[i,j]] = HEIGHT-(j as f64)*H;
             let z = (j as f64)*H;
             let x= (i as f64)*H;
             let pi =std::f64::consts::PI;
             self.phi.f[[i,j]] =2.00;
 
-            self.conc.f[[i,j]] =gama*(1.0-z) //gama*f64::exp(-z*gama)/(1.0-f64::exp(-gama));
+            self.conc.f[[i,j]] =gama*HEIGHT*f64::exp(-z*gama)/(1.0-f64::exp(-gama*HEIGHT));
         }
     }
 

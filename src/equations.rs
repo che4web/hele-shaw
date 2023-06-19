@@ -6,8 +6,10 @@ use crate::PEREODIC;
 
 #[derive(Serialize, Deserialize, Copy, Clone,Debug)]
 pub struct ParamsConc {
-    pub sc: f64,
+    pub le: f64,
     pub sor:f64,
+    pub bm:f64,
+    pub l_sed:f64,
 }
 fn zero() ->f64{
     0.0
@@ -19,7 +21,7 @@ trait Equation{
 
 #[derive(Serialize, Deserialize, Copy, Clone,Debug)]
 pub struct Params {
-    pub gr: f64,
+    pub rel: f64,
     pub gr_v: f64,
     pub omega: f64,
     pub pr: f64,
@@ -63,7 +65,7 @@ impl Field for Psi{
 
 
 unsafe fn conv_mul(v:&impl Field ,t:&impl Field,index:(usize,usize))->f64{
-    return v.dx(index)*t.dy(index)-v.dy(index)*t.dx(index)
+    return 2.0/std::f64::consts::PI*(v.dx(index)*t.dy(index)-v.dy(index)*t.dx(index))
 }
 
 impl Temperatura {
@@ -77,7 +79,7 @@ impl Temperatura {
         unsafe {
             for i in 1..NX - 1 {
                 for j in 1..NY - 1 {
-                    let mut tmp = self.lap((i, j))/pr;
+                    let mut tmp = self.lap((i, j));
                     tmp += conv_mul(psi,self,(i, j));
                     tmp /= H * H;
                     *self.delta.uget_mut((i, j)) = tmp * dt;
@@ -101,11 +103,12 @@ impl Phi {
         unsafe {
             for i in 1..NX - 1 {
                 for j in 1..NY - 1 {
-                    let mut tmp = self.lap((i, j)) ;
-                    tmp += conv_mul(psi,self,(i, j));
+                    let g = self.params.rel*t.dx((i, j)) - self.params.params_c.bm*conc.dx((i, j)) ;
+                    let mut tmp = self.params.pr*self.lap((i, j)) ;
+                    tmp += 4.0/3.0*conv_mul(psi,self,(i, j));
                     tmp /= H * H;
-                    let mut g = t.dx((i, j)) + conc.dx((i, j)) ;
-                    tmp += (self.params.gr+self.params.gr_v*(self.params.omega*time).sin() ) /H*g;
+                    tmp -= self.params.pr*self.f[[i,j]]*std::f64::consts::PI.powi(2)/4.0;
+                    tmp += self.params.pr*4.0/std::f64::consts::PI*(1.0+self.params.gr_v*(self.params.omega*time).sin() ) /H*g;
                     //tmp -= self.params.pr * self.params.rel_c2 * (conc2.dx((i, j))) / H;
                     *self.delta.uget_mut((i, j)) = tmp * dt;
                 }
@@ -209,15 +212,16 @@ impl Concentration {
         }
     }
     pub fn step(&mut self, psi: &Psi,temp:&Temperatura, dt: f64) {
-        let le = 1.0/self.params.sc;
+        let le = self.params.le;
         let sor= self.params.sor;
+        let l_sed = self.params.l_sed;
        //println!("{:?}",le/l);
         unsafe {
             self.calc_v(&psi);
 
             for i in 1..NX {
                 for k in 0..NY {
-                    let mut tmp = (self.vx[[i, k]] ) * self.mx_b((i, k));
+                    let mut tmp = 2.0/std::f64::consts::PI*(self.vx[[i, k]] ) * self.mx_b((i, k));
                     tmp += -le * self.dx_b((i, k));
                     tmp += le * sor*temp.dx_b((i, k));
                     self.qew.f[[i, k]] = tmp / H;
@@ -225,12 +229,13 @@ impl Concentration {
             }
             for i in 0..NX {
                 for k in 1..NY {
-                    let mut tmp = (-self.vy[[i, k]]) * self.my_b((i, k));
+                    let mut tmp = (2.0/std::f64::consts::PI*(-self.vy[[i, k]]) -le/l_sed ) * self.my_b((i, k));
                     tmp += -le * (self.dy_b((i, k)));
                     tmp += le * sor*temp.dy_b((i, k)) ;
                     self.qsn.f[[i, k]] = tmp / H;
                 }
             }
+            /////////////////////////////////////////////////
 
             for i in 1..NX - 1 {
                 for k in 1..NY - 1 {
