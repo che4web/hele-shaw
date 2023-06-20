@@ -107,7 +107,7 @@ impl Phi {
                     let mut tmp = self.params.pr*self.lap((i, j)) ;
                     tmp += 4.0/3.0*conv_mul(psi,self,(i, j));
                     tmp /= H * H;
-                    tmp -= self.params.pr*self.f[[i,j]]*std::f64::consts::PI.powi(2)/4.0;
+                    tmp -= self.params.pr*self.f.uget((i,j))*std::f64::consts::PI.powi(2)/4.0;
                     tmp += self.params.pr*4.0/std::f64::consts::PI*(1.0+self.params.gr_v*(self.params.omega*time).sin() ) /H*g;
                     //tmp -= self.params.pr * self.params.rel_c2 * (conc2.dx((i, j))) / H;
                     *self.delta.uget_mut((i, j)) = tmp * dt;

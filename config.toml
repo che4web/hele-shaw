@@ -8,5 +8,5 @@ rel_v= 0.15
 [params_c]
 le=5e-4
 sor=0.0
-bm=0.16
+bm=0.256
 l_sed=32
