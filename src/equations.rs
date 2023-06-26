@@ -8,6 +8,8 @@ use crate::PEREODIC;
 pub struct ParamsConc {
     pub le: f64,
     pub sor:f64,
+    #[serde(default ="zero")]
+    pub sor1:f64,
     pub bm:f64,
     pub l_sed:f64,
 }
@@ -213,7 +215,7 @@ impl Concentration {
     }
     pub fn step(&mut self, psi: &Psi,temp:&Temperatura, dt: f64) {
         let le = self.params.le;
-        let sor= self.params.sor;
+        let sor= self.params.sor1;
         let l_sed = self.params.l_sed;
        //println!("{:?}",le/l);
         unsafe {
@@ -223,7 +225,7 @@ impl Concentration {
                 for k in 0..NY {
                     let mut tmp = 2.0/std::f64::consts::PI*(self.vx[[i, k]] ) * self.mx_b((i, k));
                     tmp += -le * self.dx_b((i, k));
-                    tmp += le * sor*temp.dx_b((i, k));
+                    tmp += -le * sor*temp.dx_b((i, k));
                     self.qew.f[[i, k]] = tmp / H;
                 }
             }
@@ -231,7 +233,7 @@ impl Concentration {
                 for k in 1..NY {
                     let mut tmp = (2.0/std::f64::consts::PI*(-self.vy[[i, k]]) -le/l_sed ) * self.my_b((i, k));
                     tmp += -le * (self.dy_b((i, k)));
-                    tmp += le * sor*temp.dy_b((i, k)) ;
+                    tmp += -le * sor*temp.dy_b((i, k)) ;
                     self.qsn.f[[i, k]] = tmp / H;
                 }
             }

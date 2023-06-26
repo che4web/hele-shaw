@@ -92,7 +92,7 @@ impl System for S{
         return H*H/5.0/60.;
     }
     fn initial_condition(&mut self){
-        let gama:f64= -(self.params.params_c.sor*self.params.rel*self.params.params_c.bm-1.0)/self.params.params_c.l_sed;
+        let gama:f64= -(self.params.params_c.sor*self.params.rel/self.params.params_c.bm*self.params.params_c.l_sed-1.0/self.params.params_c.l_sed);
  
       for i in 0..NX{
         for j in 0..NY{
@@ -120,7 +120,8 @@ pub struct Row{
 }
 fn read_params()->Params{
     let contents = fs::read_to_string("config.toml").unwrap() ;
-    let params:Params = toml::from_str(&contents).unwrap();
+    let mut  params:Params = toml::from_str(&contents).unwrap();
+    params.params_c.sor1 = params.params_c.sor*params.rel/params.params_c.bm/params.params_c.l_sed;
     params
 }
 
