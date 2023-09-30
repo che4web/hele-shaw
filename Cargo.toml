@@ -14,8 +14,9 @@ queues = "1.0.2"
 csv = "1.1"
 serde =  { version = "1.0", features = ["derive"] }
 toml = "0.5.2"
+hdf5 = "0.8.1"
 
-[profile.release]
-debug = 1
-[rust]
-debuginfo-level = 1
+#[profile.release]
+#debug = 1
+#[rust]
+#debuginfo-level = 1

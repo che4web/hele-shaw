@@ -1,0 +1,12 @@
+rel = 0.02
+time = 100000
+pr = 48
+gr_v = 2.0
+omega = 0.01
+rel_v = 0.15
+
+[params_c]
+le = 0.0005
+sor = 8.8
+bm = 5.12
+l_sed = 32

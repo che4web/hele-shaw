@@ -99,18 +99,18 @@ impl Phi {
             params: params,
         };
     }
-    pub fn step(&mut self, psi: &Psi, t: &Temperatura,conc:&Concentration,  dt: f64,time:f64) {
+    pub fn step(&mut self, psi: &Psi, t: &Temperatura,conc:&Concentration,  dt: f64,g:f64) {
         //let mut delta = Array2::<f64>::zeros((NX,NY));
         //let shape= delta.dim();
         unsafe {
             for i in 1..NX - 1 {
                 for j in 1..NY - 1 {
-                    let g = self.params.rel*t.dx((i, j)) - self.params.params_c.bm*conc.dx((i, j)) ;
+                    let archim = self.params.rel*t.dx((i, j)) - self.params.params_c.bm*conc.dx((i, j)) ;
                     let mut tmp = self.params.pr*self.lap((i, j)) ;
                     tmp += 4.0/3.0*conv_mul(psi,self,(i, j));
                     tmp /= H * H;
                     tmp -= self.params.pr*self.f.uget((i,j))*std::f64::consts::PI.powi(2)/4.0;
-                    tmp += self.params.pr*4.0/std::f64::consts::PI*(1.0+self.params.gr_v*(self.params.omega*time).sin() ) /H*g;
+                    tmp += self.params.pr*4.0/std::f64::consts::PI*g /H*archim;
                     //tmp -= self.params.pr * self.params.rel_c2 * (conc2.dx((i, j))) / H;
                     *self.delta.uget_mut((i, j)) = tmp * dt;
                 }
@@ -213,7 +213,7 @@ impl Concentration {
            
         }
     }
-    pub fn step(&mut self, psi: &Psi,temp:&Temperatura, dt: f64) {
+    pub fn step(&mut self, psi: &Psi,temp:&Temperatura, dt: f64,g:f64) {
         let le = self.params.le;
         let sor= self.params.sor1;
         let l_sed = self.params.l_sed;
@@ -225,15 +225,15 @@ impl Concentration {
                 for k in 0..NY {
                     let mut tmp = 2.0/std::f64::consts::PI*(self.vx[[i, k]] ) * self.mx_b((i, k));
                     tmp += -le * self.dx_b((i, k));
-                    tmp += -le * sor*temp.dx_b((i, k));
+                    tmp += -le * sor*temp.dx_b((i, k))*self.mx_b((i,k));
                     self.qew.f[[i, k]] = tmp / H;
                 }
             }
             for i in 0..NX {
                 for k in 1..NY {
-                    let mut tmp = (2.0/std::f64::consts::PI*(-self.vy[[i, k]]) -le/l_sed ) * self.my_b((i, k));
+                    let mut tmp = (2.0/std::f64::consts::PI*(-self.vy[[i, k]]) -le/l_sed*H*g ) * self.my_b((i, k));
                     tmp += -le * (self.dy_b((i, k)));
-                    tmp += -le * sor*temp.dy_b((i, k)) ;
+                    tmp += -le * sor*temp.dy_b((i, k))*self.my_b((i,k)) ;
                     self.qsn.f[[i, k]] = tmp / H;
                 }
             }

@@ -1,8 +1,8 @@
-rel=0.018
+rel=0.02
 time=100000
 pr=48
-gr_v=0.50
-omega=2.44
+gr_v=2.00
+omega=0.01
 rel_v= 0.15
 
 [params_c]
