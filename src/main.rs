@@ -1,5 +1,5 @@
 const NY:usize=50;
-const L:f64=2.0;
+const L:f64=0.2;
 const NX:usize=(NY-1)*(L as usize)+1;
 const HEIGHT:f64 =20.0; 
 const H:f64=HEIGHT*L/((NX-1) as f64);
@@ -32,9 +32,9 @@ struct S{
 impl System for S{
     fn next_step(&mut self,_dt:f64,time:f64){
         let g = 1.0+self.params.gr_v*(self.params.omega*time).sin();
-        self.phi.step(&self.psi,&self.temp,&self.conc,_dt,g);
-        self.psi.step(&self.phi);
-        self.temp.step(&self.psi,self.params.pr,_dt);
+        //self.phi.step(&self.psi,&self.temp,&self.conc,_dt,g);
+       // self.psi.step(&self.phi);
+       // self.temp.step(&self.psi,self.params.pr,_dt);
         self.conc.step(&self.psi,&self.temp,_dt,g);
         self.boundary_condition();
     }
