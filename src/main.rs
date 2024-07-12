@@ -1,5 +1,5 @@
-const NY:usize=50;
-const L:f64=0.2;
+const NY:usize=20;
+const L:f64=2.0;
 const NX:usize=(NY-1)*(L as usize)+1;
 const HEIGHT:f64 =20.0; 
 const H:f64=HEIGHT*L/((NX-1) as f64);
@@ -24,6 +24,7 @@ struct S{
     phi:Phi,
     conc:Concentration,
     params:Params,
+    time:f64,
   //  file:hdf5::File,
 }
 
@@ -31,10 +32,11 @@ struct S{
 
 impl System for S{
     fn next_step(&mut self,_dt:f64,time:f64){
+        self.time= time;
         let g = 1.0+self.params.gr_v*(self.params.omega*time).sin();
-        //self.phi.step(&self.psi,&self.temp,&self.conc,_dt,g);
-       // self.psi.step(&self.phi);
-       // self.temp.step(&self.psi,self.params.pr,_dt);
+        self.phi.step(&self.psi,&self.temp,&self.conc,_dt,g);
+        self.psi.step(&self.phi);
+        self.temp.step(&self.psi,self.params.pr,_dt);
         self.conc.step(&self.psi,&self.temp,_dt,g);
         self.boundary_condition();
     }
@@ -60,6 +62,7 @@ impl System for S{
         let header = vec![String::from("phi"),String::from("psi"),String::from("T"),String::from("C")];
         //write_stage(stage,header, String::from(format!("res/stage_t={:05}",time)),H);
         let ret  = read_stage_h5(stage,header);
+        println!("read_ from stage");
         println!("{:?}",ret);
         let (s,time) = ret.unwrap();
         self.phi.f =s[0].clone();
@@ -93,6 +96,12 @@ impl System for S{
         for i in 0..NX{
             self.phi.f[[i,0]]=-self.psi.f[[i,1]]/(H*H)*2.0;
             self.phi.f[[i,NY-1]]=-self.psi.f[[i,NY-2]]/(H*H)*2.0;
+            
+            self.temp.f[[i,0]]=20.0+self.params.temp_a_bottom*(
+                (self.time*self.params.omega_temp).sin());
+
+            self.temp.f[[i,NY-1]]=0.0+self.params.temp_a_bottom*(
+                (self.time*self.params.omega_temp).sin());
         }
 
     }
@@ -127,12 +136,12 @@ impl System for S{
         for j in 0..NY{
 
             self.temp.f[[i,j]] = HEIGHT-(j as f64)*H;
-         //   let z = (j as f64)*H;
+            let z = (j as f64)*H;
          //   let x= (i as f64)*H;
           //  let pi =std::f64::consts::PI;
             self.phi.f[[i,j]] =2.00;
 
-            self.conc.f[[i,j]] =1.0;//gama*HEIGHT*f64::exp(-z*gama)/(1.0-f64::exp(-gama*HEIGHT));
+            self.conc.f[[i,j]] =gama*HEIGHT*f64::exp(-z*gama)/(1.0-f64::exp(-gama*HEIGHT));
         }
     }
 
@@ -166,6 +175,7 @@ fn main() {
         psi:Psi::new(NX,NY),
         params:params,
         conc:Concentration::new(NX,NY,params.params_c),
+        time:0.0,
     //    file:file
 
     };
