@@ -30,7 +30,8 @@ pub struct Params {
     pub time: f64,
     pub params_c: ParamsConc,
     pub omega_temp:f64,
-    pub temp_a_bottom:f64
+    pub temp_a_bottom:f64,
+    pub temp_a_top:f64
 }
 use crate::{H, NX, NY};
 pub struct Temperatura {

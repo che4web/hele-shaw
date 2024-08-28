@@ -1,4 +1,4 @@
-const NY:usize=20;
+const NY:usize=32;
 const L:f64=2.0;
 const NX:usize=(NY-1)*(L as usize)+1;
 const HEIGHT:f64 =20.0; 
@@ -100,7 +100,7 @@ impl System for S{
             self.temp.f[[i,0]]=20.0+self.params.temp_a_bottom*(
                 (self.time*self.params.omega_temp).sin());
 
-            self.temp.f[[i,NY-1]]=0.0+self.params.temp_a_bottom*(
+            self.temp.f[[i,NY-1]]=0.0+self.params.temp_a_top*(
                 (self.time*self.params.omega_temp).sin());
         }
 
@@ -129,7 +129,7 @@ impl System for S{
         return H*H/5.0/60.;
     }
     fn initial_condition(&mut self){
-        let gama:f64= -(self.params.params_c.sor*self.params.rel/self.params.params_c.bm-1.0/self.params.params_c.l_sed);
+        let gama:f64= -(self.params.params_c.sor*self.params.rel/self.params.params_c.bm-0.0/self.params.params_c.l_sed);
         println!("{:?}",&gama);
  
       for i in 0..NX{
@@ -140,8 +140,12 @@ impl System for S{
          //   let x= (i as f64)*H;
           //  let pi =std::f64::consts::PI;
             self.phi.f[[i,j]] =2.00;
-
+            if gama>1e-5{
             self.conc.f[[i,j]] =gama*HEIGHT*f64::exp(-z*gama)/(1.0-f64::exp(-gama*HEIGHT));
+            }else{
+                self.conc.f[[i,j]] =1.0;
+
+            }
         }
     }
 
