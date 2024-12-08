@@ -3,6 +3,9 @@ const L:f64=2.0;
 const NX:usize=(NY-1)*(L as usize)+1;
 const HEIGHT:f64 =20.0; 
 const H:f64=HEIGHT*L/((NX-1) as f64);
+//
+//const NX:usize=4;
+//const H:f64=HEIGHT/((NY-1) as f64);
 const PEREODIC:bool = true;
 
 use ndarray_stats::QuantileExt;
@@ -135,15 +138,16 @@ impl System for S{
       for i in 0..NX{
         for j in 0..NY{
 
-            self.temp.f[[i,j]] = HEIGHT-(j as f64)*H;
             let z = (j as f64)*H;
+            self.temp.f[[i,j]] = HEIGHT-z;
          //   let x= (i as f64)*H;
           //  let pi =std::f64::consts::PI;
             self.phi.f[[i,j]] =2.00;
             if gama>1e-5{
-            self.conc.f[[i,j]] =gama*HEIGHT*f64::exp(-z*gama)/(1.0-f64::exp(-gama*HEIGHT));
+                //self.conc.f[[i,j]] =gama*HEIGHT*f64::exp(-z*gama)/(1.0-f64::exp(-gama*HEIGHT));
+                self.conc.f[[i,j]] = gama*(HEIGHT-z);
             }else{
-                self.conc.f[[i,j]] =1.0;
+                self.conc.f[[i,j]] =0.0;
 
             }
         }

@@ -114,7 +114,7 @@ impl Phi {
                     tmp /= H * H;
                     tmp -= self.params.pr*self.f.uget((i,j))*std::f64::consts::PI.powi(2)/4.0;
                     tmp += self.params.pr*4.0/std::f64::consts::PI*g /H*archim;
-                    //tmp -= self.params.pr * self.params.rel_c2 * (conc2.dx((i, j))) / H;
+                  //  tmp -= self.params.pr * self.params.rel_c2 * (conc2.dx((i, j))) / H;
                     *self.delta.uget_mut((i, j)) = tmp * dt;
                 }
             }
@@ -228,7 +228,8 @@ impl Concentration {
                 for k in 0..NY {
                     let mut tmp = 2.0/std::f64::consts::PI*(self.vx[[i, k]] ) * self.mx_b((i, k));
                     tmp += -le * self.dx_b((i, k));
-                    tmp += -le * sor*temp.dx_b((i, k))*self.mx_b((i,k));
+                    //tmp += -le * sor*temp.dx_b((i, k))*self.mx_b((i,k));
+                    tmp += -le * sor*temp.dx_b((i, k));
                     self.qew.f[[i, k]] = tmp / H;
                 }
             }
@@ -237,7 +238,7 @@ impl Concentration {
                     //let mut tmp = (2.0/std::f64::consts::PI*(-self.vy[[i, k]]) -le/l_sed*H*g ) * self.my_b((i, k));
                     let mut tmp = (2.0/std::f64::consts::PI*(-self.vy[[i, k]])  ) * self.my_b((i, k));
                     tmp += -le * (self.dy_b((i, k)));
-                    tmp += -le * sor*temp.dy_b((i, k))*self.my_b((i,k)) ;
+                    tmp += -le * sor*temp.dy_b((i, k)) ;
                     self.qsn.f[[i, k]] = tmp / H;
                 }
             }
